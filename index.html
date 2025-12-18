@@ -17,9 +17,9 @@
             max-width: 700px;
             margin: 80px auto;
             background: #161b22;
-            padding: 40px;
+            padding: 40px 40px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
             text-align: center;
         }
 
@@ -27,6 +27,7 @@
             margin-top: 0;
             font-size: 26px;
             color: #e6edf3;
+            margin-bottom: 8px;
         }
 
         a.button {
@@ -45,10 +46,11 @@
             background: #2ea043;
         }
 
-        .small {
+        .footer {
             font-size: 14px;
             color: #8b949e;
             margin-top: 20px;
+            margin-bottom: 0;
         }
 
         a.text-link {
@@ -60,7 +62,7 @@
             text-decoration: underline;
         }
 
-        p, h2 {
+        p {
             margin-bottom: 8px;
         }
 
@@ -75,39 +77,280 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .details {
+            margin-top: 24px;
+            text-align: left;
+            font-size: 14px;
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 16px 18px;
+        }
+
+        .details h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            font-size: 20px;
+            color: #e6edf3;
+        }
+
+        .details p {
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
+
+        .details code {
+            background: #161b22;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .detail-row {
+            margin-bottom: 10px;
+        }
+
+        .detail-row:last-of-type {
+            margin-bottom: 0;
+        }
+
+        .copy-block {
+            position: relative;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-top: 4px;
+            font-size: 14px;
+            color: #c9d1d9;
+            text-align: left;
+            overflow-x: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition:
+                    background 0.15s ease,
+                    border-color 0.15s ease,
+                    box-shadow 0.15s ease,
+                    transform 0.05s ease;
+        }
+
+        .copy-block:hover {
+            background: #111827;
+            border-color: #58a6ff;
+            box-shadow: 0 0 0 1px rgba(88, 166, 255, 0.3);
+        }
+
+        .copy-block:active {
+            transform: translateY(1px);
+        }
+
+        .copy-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            flex: 1;
+        }
+
+        .copy-icon {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .copy-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: #8b949e;
+        }
+
+        .details a.button {
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            margin-top: 4px;
+        }
+
+        .backup-or {
+            display: inline-block;
+            margin: 0 8px;
+            padding: 0 4px;
+            color: #8b949e;
         }
     </style>
 
     <script>
+        const ts3connect = "ts3connect://";
+
+        function parseConnectionDetails(raw) {
+            let address = raw;
+            let queryString = "";
+
+            const qIndex = raw.indexOf("?");
+            if (qIndex !== -1) {
+                address = raw.slice(0, qIndex);
+                queryString = raw.slice(qIndex + 1);
+            }
+
+            const params = {};
+            if (queryString) {
+                queryString.split("&").forEach((part) => {
+                    if (!part) return;
+                    const [rawKey, rawVal] = part.split("=", 2);
+                    const key = decodeURIComponent(rawKey || "").toLowerCase();
+                    const val = decodeURIComponent(rawVal || "");
+                    if (!key) return;
+                    params[key] = val;
+                });
+            }
+
+            return {address, params};
+        }
+
+        function buildTargetUrl(protocol, address, params, addBookmark) {
+            const resultParams = {};
+
+            if (params) {
+                for (const [key, val] of Object.entries(params)) {
+                    if (!val) continue;
+                    if (key === "addbookmark") continue;
+                    resultParams[key] = val;
+                }
+            }
+
+            if (addBookmark) {
+                resultParams["addbookmark"] = "true";
+            }
+
+            let link = protocol;
+            if (address) {
+                link += address;
+            }
+
+            const parts = [];
+            for (const [key, val] of Object.entries(resultParams)) {
+                parts.push(encodeURIComponent(key) + "=" + encodeURIComponent(val));
+            }
+            if (parts.length) {
+                link += "?" + parts.join("&");
+            }
+
+            return link;
+        }
+
+        function toggleRow(key, show) {
+            const row = document.querySelector('.detail-row[data-key="' + key + '"]');
+            if (row) {
+                row.style.display = show ? "block" : "none";
+            }
+        }
+
+        function renderDetails(parsed) {
+            const details = document.getElementById("details");
+            if (!details || !parsed) return;
+
+            const {address, params} = parsed;
+
+            function setText(id, value) {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value || "";
+                }
+            }
+
+            setText("detail-address", address || "");
+            setText("detail-port", params.port || "");
+            setText("detail-password", params.password || "");
+            setText("detail-cid", params.cid || "");
+            setText("detail-channel", params.channel || "");
+            setText("detail-channelpassword", params.channelpassword || "");
+            setText("detail-nickname", params.nickname || "");
+            setText("detail-token", params.token || "");
+
+            const hasCid = !!params.cid;
+
+            toggleRow("address", !!address);
+            toggleRow("port", !!params.port);
+            toggleRow("password", !!params.password);
+            toggleRow("cid", hasCid);
+            toggleRow("channel", !!params.channel && !hasCid);
+            toggleRow("channelpassword", !!params.channelpassword);
+            toggleRow("nickname", !!params.nickname);
+            toggleRow("token", !!params.token);
+
+            const bookmarkBtn = document.getElementById("detail-bookmark");
+
+            if (bookmarkBtn) {
+                bookmarkBtn.href = buildTargetUrl("ts3connect://", address, params, true);
+            }
+
+            details.style.display = "block";
+        }
+
         window.addEventListener("load", () => {
             let target = null;
+            let raw = null;
+            let parsed = null;
+
             if (window.location.hash && window.location.hash.length > 1) {
-                const raw = decodeURIComponent(window.location.hash.slice(1));
-                target = raw.startsWith("ts3connect://")
-                    ? raw
-                    : "ts3connect://" + raw;
+                raw = decodeURIComponent(window.location.hash.slice(1));
+                if (raw.toLowerCase().startsWith(ts3connect)) {
+                    raw = raw.slice(ts3connect.length);
+                }
+                parsed = parseConnectionDetails(raw);
             }
 
             const title = document.getElementById("title");
             const spinner = document.getElementById("spinner");
-            const link = document.getElementById("fallback");
-
-            if (!target) {
+            const retry = document.getElementById("retry");
+            const ts3server = document.getElementById("ts3server");
+            if (!raw || !parsed) {
                 title.textContent = "No TS3 address provided.";
                 spinner.style.display = "none";
                 return;
             }
 
+            renderDetails(parsed);
+
             setTimeout(() => {
-                title.textContent = "Something went wrong?"
+                title.textContent = "Something went wrong?";
                 spinner.style.display = "none";
                 document.getElementById("install").style.display = "block";
-                link.style.display = "inline-block";
+                document.getElementById("backups").style.display = "inline-block";
             }, 1000);
 
-            link.href = target;
+            target = buildTargetUrl(ts3connect, parsed.address, parsed.params, false);
+            if (ts3server) {
+                ts3server.href = buildTargetUrl("ts3server://", parsed.address, parsed.params, false);
+            }
+            if (retry) {
+                retry.href = target;
+            }
+
             window.location.href = target;
+        });
+
+        window.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".copy-block").forEach(block => {
+                block.addEventListener("click", () => {
+                    const targetId = block.getAttribute("data-target");
+                    const el = document.getElementById(targetId);
+                    if (!el) return;
+
+                    const text = el.textContent.trim();
+                    if (!text) return;
+
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).catch(() => {});
+                    }
+                });
+            });
         });
     </script>
 </head>
@@ -118,18 +361,159 @@
 
     <div id="spinner" class="spinner"></div>
 
-    <a id="fallback" class="button" style="display:none;" href="#">Retry</a>
+    <div id="backups" style="display:none;">
+        <a id="retry" href="#" class="button">Retry</a>
+        <span class="backup-or">or</span>
+        <a id="ts3server" href="#" class="button">
+            Try ts3server://
+        </a>
+    </div>
 
     <div id="install" style="display:none; margin-top:25px;">
         <p><strong>First time here? Download the TS3 Protocol Handler file below and run it.</strong></p>
-        <a class="button" href="ts3connect.reg" >Download ts3connect.reg</a>
+        <a class="button" href="ts3connect.reg">Download ts3connect.reg</a>
     </div>
 
-    <p class="small">
+    <div id="details" class="details" style="display:none;">
+
+        <h3>Connection details</h3>
+
+        <div class="detail-row" data-key="address">
+            <p><strong>Address</strong></p>
+            <div class="copy-block" data-target="detail-address">
+                <pre id="detail-address">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="port">
+            <p><strong>Port</strong></p>
+            <div class="copy-block" data-target="detail-port">
+                <pre id="detail-port">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="password">
+            <p><strong>Server password</strong></p>
+            <div class="copy-block" data-target="detail-password">
+                <pre id="detail-password">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="cid">
+            <p><strong>Channel ID</strong></p>
+            <div class="copy-block" data-target="detail-cid">
+                <pre id="detail-cid">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="channel">
+            <p><strong>Channel</strong></p>
+            <div class="copy-block" data-target="detail-channel">
+                <pre id="detail-channel">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="channelpassword">
+            <p><strong>Channel password</strong></p>
+            <div class="copy-block" data-target="detail-channelpassword">
+                <pre id="detail-channelpassword">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="nickname">
+            <p><strong>Nickname</strong></p>
+            <div class="copy-block" data-target="detail-nickname">
+                <pre id="detail-nickname">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <div class="detail-row" data-key="token">
+            <p><strong>Token</strong></p>
+            <div class="copy-block" data-target="detail-token">
+                <pre id="detail-token">-</pre>
+                <span class="copy-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="20" height="20"
+                     viewBox="0 0 256 256" class="fill-current">
+                    <path
+                            d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z">
+                    </path>
+                </svg>
+            </span>
+            </div>
+        </div>
+
+        <a id="detail-bookmark" href="#" class="button">Open and add bookmark</a>
+
+    </div>
+
+    <p class="footer">
         Having trouble? Did you read the
         <a class="text-link" href="https://github.com/Puotek/ts3connect?tab=readme-ov-file#readme">README</a>?
     </p>
-    <h2 id="test"></h2>
 </div>
 
 </body>
