@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\ts3connect]
+@="TeamSpeak 3 Server"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\ts3connect\shell]
+
+[HKEY_CLASSES_ROOT\ts3connect\shell\open]
+
+[HKEY_CLASSES_ROOT\ts3connect\shell\open\command]
+@="cmd.exe /c start \"\" \"C:\\Program Files\\TeamSpeak 3 Client\\ts3client_win64.exe\" \"ts3server://%1\""
