@@ -16,22 +16,20 @@
 
 [shield:workshop]: https://img.shields.io/badge/Puotek-1b2838?logo=steam&logoColor=white
 
-[banner]: https://capsule-render.vercel.app/api?type=blur&animation=fadeIn&height=222&descAlignY=70&fontColor=FFFFFF&fontSize=70&color=0:161b22,30:a99cff,60:8bc5ff,100:90f0e4&text=ts3connect&desc=TS3%20server%20connect%20links%20for%20Arma%203
 
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
 
-[![Banner][banner]][example]
+[<img src="https://capsule-render.vercel.app/api?type=blur&animation=fadeIn&height=222&descAlignY=70&fontColor=FFFFFF&fontSize=70&color=0:161b22,30:a99cff,60:8bc5ff,100:90f0e4&text=ts3connect&desc=TS3%20server%20connect%20links%20for%20Arma%203 " alt="Banner"/>][example]
 
 [![Discord][shield:discord]][puotek:discord]
 [![Steam][shield:workshop]][puotek:workshop]
 
 </div>
 
-ts3connect makes working TeamSpeak 3 server links possible with people who have borked `ts3server://` protocol and also allows to use those links in Arma 3. (ts3server links should work with next profiling branch, but that wouldnt apply to `ts3connect://`)
+ts3connect makes working TeamSpeak 3 server links possible with people who have borked `ts3server://` protocol and also allows to use those links in Arma 3.
 
-This is done by installing a small registry file that registers a new protocol handler:
-`ts3connect://` that launches TeamSpeak 3 similar to how `ts3server://` normally would.
+This is done by installing a small registry file that registers a new protocol handler `ts3connect://` that launches TeamSpeak 3 similar to how `ts3server://` normally would.
 
 If you encounter bugs, errors, or have suggestions, please open an [issue on github][github:issues].
 
