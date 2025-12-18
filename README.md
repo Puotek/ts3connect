@@ -6,6 +6,8 @@
 
 [ts3server:support]: https://support.teamspeak.com/hc/en-us/articles/360002712818-How-can-I-link-to-my-TeamSpeak-3-server-on-my-webpage
 
+[biki:cfgcommands]: https://community.bistudio.com/wiki/Description.ext#CfgCommands
+
 [puotek:discord]: https://discord.com/users/291967371646599169
 
 [puotek:workshop]: https://steamcommunity.com/id/puotekpl/myworkshopfiles/?appid=107410&numperpage=30
@@ -27,15 +29,15 @@
 
 </div>
 
-ts3connect makes working TeamSpeak 3 server links possible with people who have borked `ts3server://` protocol and also allows to use those links in Arma 3.
+ts3connect enables working TeamSpeak 3 server links for users with a broken `ts3server://` protocol and also allows those links to be used in Arma 3.
 
 This is done by installing a small registry file that registers a new protocol handler `ts3connect://` that launches TeamSpeak 3 similar to how `ts3server://` normally would.
 
-If you encounter bugs, errors, or have suggestions, please open an [issue on github][github:issues].
+If you encounter bugs, errors, or have suggestions, please open an [issue on GitHub][github:issues].
 
 ## Installation
 
-Download the [ts3connect.reg](ts3connect.reg) file from github or from link in redirect page and than run the file. After installing you should be able to use links like `ts3connect://...` same as you would `ts3server://...`.
+Download the [ts3connect.reg](ts3connect.reg) file from GitHub or from link in redirect page and then run the file. After installing, you should be able to use links like `ts3connect://...` same as you would `ts3server://...`.
 
 ## Creating Direct Protocol Links
 
@@ -45,7 +47,7 @@ You can use the `ts3connect://` protocol exactly like `ts3server://`:
 
 You can also add other elements to the link, such as:
 - `&password=serverPassword`
-- `&nickname=UserNickname` // Dont use this or you will have duplicate usernames for everyone
+- `&nickname=UserNickname` // Don't use this otherwise you will have username chaos
 - `&cid=channelID` // Is prioritized above `channel=`
 - `&channel=myChannelName` // Requires URL encoding (eg space is `%20`)
 - `&channelpassword=defaultChannelPassword`
@@ -61,7 +63,7 @@ ts3connect://voice.teamspeak.com?port=9987&password=BESTUNIT&channel=Briefing%20
 
 Redirect links are required for Arma 3, but also have the bonus of mentioning the requirement of installing `ts3connect.reg`.
 
-To convert a direct protocol link to a github redirect one, you simply replace the `...` in the link below with your direct protocol link. `ts3connect://` is optional and can be removed here.
+To convert a direct protocol link to a GitHub redirect one, you simply replace the `...` in the link below with your direct protocol link. `ts3connect://` is optional and can be removed here.
 ```
 https://puotek.github.io/ts3connect/#...
 ```
@@ -77,7 +79,7 @@ https://puotek.github.io/ts3connect/#ts3connect://voice.teamspeak.com?port=9987
 
 ## Arma 3 Setup
 
-Arma 3 does not allow custom URI extensions such as `ts3connect://` so you will have to use redirect links mentioned above. Arma 3 also restricts which external URLs can be opened, so you will need to whitelist `https://puotek.github.io/*` inside a `CfgCommands` class in a `config.cpp` or `description.ext` like this:
+Arma 3 does not allow custom URI extensions such as `ts3connect://` so you will have to use redirect links mentioned above. Arma 3 also restricts which external URLs can be opened, so you will need to whitelist `https://puotek.github.io/*` inside a [CfgCommands][biki:cfgcommands] class in a `config.cpp` or `description.ext` like this:
 
 ```cpp
 class CfgCommands {
@@ -87,7 +89,7 @@ class CfgCommands {
 };
 ```
 
-If you dont understand what that means, you can also just use the [ts3connect.pbo](ts3connect.pbo) in your mod.
+If you don't understand what that means, you can also just use the [ts3connect.pbo](ts3connect.pbo) instead.
 After whitelisting, you can use the redirect links inside Arma in GUI elements or in scripts, like:
 
 ```cpp
