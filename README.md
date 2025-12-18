@@ -21,9 +21,8 @@
 <!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
 
-[![Banner][banner]][github]
+[![Banner][banner]][example]
 
-[![GitHub Pages][shield:github:pages]][example]
 [![Discord][shield:discord]][puotek:discord]
 [![Steam][shield:workshop]][puotek:workshop]
 
@@ -34,60 +33,53 @@ ts3connect makes working TeamSpeak 3 server links possible with people who have 
 This is done by installing a small registry file that registers a new protocol handler:
 `ts3connect://` that launches TeamSpeak 3 similar to how `ts3server://` normally would.
 
-
 If you encounter bugs, errors, or have suggestions, please open an [issue on github][github:issues].
+
 ## Installation
 
 Download the [ts3connect.reg](ts3connect.reg) file from github or from link in redirect page and than run the file. After installing you should be able to use links like `ts3connect://...` same as you would `ts3server://...`.
 
+## Creating Direct Protocol Links
 
-## Raw Links Setup
+You can use the `ts3connect://` protocol exactly like `ts3server://`:
 
-To create a working link to a Teamspeak 3 server, create a link same as you would for `ts3server://...` eg.:
+```ts3connect://voice.teamspeak.com?port=9987```
 
-replace `ts3server://` with `ts3connect://` or
-without `ts3server://` make a link like `https://puotek.github.io/ts3connect/#...`
+You can also add other elements to the link, such as:
+- `&password=serverPassword`
+- `&nickname=UserNickname` // Dont use this or you will have duplicate usernames for everyone
+- `&cid=channelID` // Is prioritized above `channel=`
+- `&channel=myChannelName` // Requires URL encoding (eg space is `%20`)
+- `&channelpassword=defaultChannelPassword`
+- `&token=TokenKey`
+- `&addbookmark=MyBookMarkLabel` // I dont recommend this
 
-to get this working in arma you have to whitelist in a `config.cpp` in `CfgCommands` the `https://puotek.github.io/*` domain, like this:
-
-```cpp
-class CfgCommands {
-    allowedHTMLLoadURIs[] += {
-        "https://puotek.github.io/*"
-    };
-};
+Here is an example:
+```
+ts3connect://voice.teamspeak.com?port=9987&password=BESTUNIT&channel=Briefing%20Room&channelpassword=123
 ```
 
-than you can add the link to any button or otherwise as a `url="https://puotek.github.io/#..."` and it should work
+## Creating GitHub Pages Redirect Links
 
-## Link Creation
+Redirect links are required for Arma 3, but also have the bonus of mentioning the requirement of installing `ts3connect.reg`.
 
-You can create TeamSpeak connection links in two ways:
+To convert a direct protocol link to a github redirect one, you simply replace the `...` in the link below with your direct protocol link. `ts3connect://` is optional and can be removed here.
+```
+https://puotek.github.io/ts3connect/#...
+```
 
-### 1. Direct Protocol Link
-
-Use the `ts3connect://` protocol exactly like `ts3server://`:
-
-`ts3connect://voice.teamspeak.com?port=9987`
-
-you can also add other elements to the link, such as `&channel=Briefing%20Room` or `&password=123` like this:
-
-`ts3connect://voice.teamspeak.com?port=9987&channel=Briefing%20Room&password=123`
-
-### 2. GitHub Pages Redirect Link
-
-Useful when direct protocol links are blocked (e.g., inside Arma 3):
-
+As an example you will end up with:
+```
 https://puotek.github.io/ts3connect/#voice.teamspeak.com?port=9987
+```
+or
+```
+https://puotek.github.io/ts3connect/#ts3connect://voice.teamspeak.com?port=9987
+```
 
-Example redirect link:  
-https://puotek.github.io/ts3connect/#voice.teamspeak.com?port=9987
+## Arma 3 Setup
 
-## Arma 3 Integration
-
-Arma 3 restricts which external URLs can be opened.  
-To enable the redirect page, whitelist the domain in your config.cpp:
-To be able to use the redirect page links, you need to whitelist them in CfgCommands inside a config.cpp
+Arma 3 does not allow custom URI extensions such as `ts3connect://` so you will have to use redirect links mentioned above. Arma 3 also restricts which external URLs can be opened, so you will need to whitelist `https://puotek.github.io/*` inside a `CfgCommands` class in a `config.cpp` or `description.ext` like this:
 
 ```cpp
 class CfgCommands {
@@ -98,15 +90,12 @@ class CfgCommands {
 ```
 
 If you dont understand what that means, you can also just use the [ts3connect.pbo](ts3connect.pbo) in your mod.
-
 After whitelisting, you can use the redirect links inside Arma in GUI elements or in scripts, like:
 
 ```cpp
 url = "https://puotek.github.io/ts3connect/#voice.teamspeak.com?port=9987";
 ```
 
-## Notes
+Keep in mind that Arma has an artificial limit of 255 characters for urls.
 
-- ts3connect.reg can be downloaded directly from the repository or via the redirect page.
-- Direct `ts3connect://` links require the registry handler to be installed.
-- The HTTP-based redirect method works even in environments that block custom protocols.
+As a note `ts3server://` URI extension is allowed by Arma (at least in the profiling branch as of writing this) but that doesn't matter to us, since we use `ts3connect://`
