@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TS3 Redirect</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            background: #0d1117;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 80px auto;
+            background: #161b22;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 26px;
+            color: #e6edf3;
+        }
+
+        a.button {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 10px 22px;
+            background: #238636;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        a.button:hover {
+            background: #2ea043;
+        }
+
+        .small {
+            font-size: 14px;
+            color: #8b949e;
+            margin-top: 20px;
+        }
+
+        a.text-link {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+
+        a.text-link:hover {
+            text-decoration: underline;
+        }
+
+        p, h2 {
+            margin-bottom: 8px;
+        }
+
+        .spinner {
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #30363d;
+            border-top-color: #58a6ff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        window.addEventListener("load", () => {
+            let target = null;
+            if (window.location.hash && window.location.hash.length > 1) {
+                const raw = decodeURIComponent(window.location.hash.slice(1));
+                target = raw.startsWith("ts3connect://")
+                    ? raw
+                    : "ts3connect://" + raw;
+            }
+
+            const title = document.getElementById("title");
+            const spinner = document.getElementById("spinner");
+            const link = document.getElementById("fallback");
+
+            if (!target) {
+                title.textContent = "No TS3 address provided.";
+                spinner.style.display = "none";
+                return;
+            }
+
+            setTimeout(() => {
+                title.textContent = "Something went wrong?"
+                spinner.style.display = "none";
+                document.getElementById("install").style.display = "block";
+                link.style.display = "inline-block";
+            }, 1000);
+
+            link.href = target;
+            window.location.href = target;
+        });
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h2 id="title">Connecting to TeamSpeak…</h2>
+
+    <div id="spinner" class="spinner"></div>
+
+    <a id="fallback" class="button" style="display:none;" href="#">Retry</a>
+
+    <div id="install" style="display:none; margin-top:25px;">
+        <p><strong>First time here? Download the TS3 Protocol Handler file below and run it.</strong></p>
+        <a class="button" href="ts3connect.reg" >Download ts3connect.reg</a>
+    </div>
+
+    <p class="small">
+        Having trouble? Did you read the
+        <a class="text-link" href="https://github.com/Puotek/ts3connect?tab=readme-ov-file#readme">README</a>?
+    </p>
+    <h2 id="test"></h2>
+</div>
+
+</body>
+</html>
