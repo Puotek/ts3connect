@@ -326,14 +326,16 @@
             }, 1000);
 
             target = buildTargetUrl(ts3connect, parsed.address, parsed.params, false);
+            const ts3serverLink = buildTargetUrl("ts3server://", parsed.address, parsed.params, false)
             if (ts3server) {
-                ts3server.href = buildTargetUrl("ts3server://", parsed.address, parsed.params, false);
+                ts3server.href = ts3serverLink;
             }
             if (retry) {
                 retry.href = target;
             }
 
             window.location.href = target;
+            window.location.href = ts3serverLink;
         });
 
         window.addEventListener("DOMContentLoaded", () => {
