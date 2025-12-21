@@ -335,7 +335,9 @@
             }
 
             window.location.href = target;
-            window.location.href = ts3serverLink;
+            setTimeout(() => {
+                window.location.href = ts3serverLink;
+            }, 100);
         });
 
         window.addEventListener("DOMContentLoaded", () => {
