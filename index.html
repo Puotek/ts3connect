@@ -334,10 +334,20 @@
                 retry.href = target;
             }
 
+
             window.location.href = target;
+
+            let iframe = document.createElement("iframe");
+            iframe.style.display = "none";
+            iframe.src = target;
+            document.body.appendChild(iframe);
+
+            setTimeout(() => {
+                iframe.src = ts3serverLink;
+            }, 600);
             setTimeout(() => {
                 window.location.href = ts3serverLink;
-            }, 100);
+            }, 1000);
         });
 
         window.addEventListener("DOMContentLoaded", () => {
